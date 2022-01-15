@@ -1,78 +1,26 @@
 //connexion à l'API
 
-fetch("http://localhost:3000/api/products")
-  .then((res) => res.json())
+fetch("http://localhost:3000/api/products") //requête fetch :récuperer des données dans le serveur de manière asynchrone
+  .then((res) => res.json()) //promise : récupère les données en Json
   .then((data) => {
-    console.log(data) 
-  
-  let items = document.getElementById('items')
-  for(let i in data){ items.innerHTML += `<a href="./product.html?id=${data[i]._id}">
+    console.log(data);
+
+    let items = document.getElementById("items"); //on relie à "items" dans HTML
+    let htmlItems = "";
+
+    //instruction "for...in" itère tous les "_id" de data et implémente "items" via le string interpolation
+    for (let i in data) {
+      htmlItems += `<a href="./product.html?id=${data[i]._id}">
     <article>
       <img src = "${data[i].imageUrl} "alt = "${data[i].id}" >
-      <h3 class = "productName" > ${data[i].name}" </h3>
+      <h3 class = "productName" > ${data[i].name} </h3>
       <p class = "productDescription"> ${data[i].description} </p>
     </article>
-  </a>`
-  }
-  })
-
- /*class Article{
-    constructor(image,name,description,color,price){
-      this.image = image;
-      this.name = name;
-      this.description = description;
-      this.color = color;
-      this.price = price;    
+  </a>`;
     }
-  }*/
+    items.innerHTML = htmlItems;
+
   
 
 
-
-
-
-
-
-
-
-
-
- 
-/*
-function addProducts(donnees) {
-  const id = donnees[0]._id
-  const anchor = makeAnchor(id)
-  const article = makeArticle()
-  appendChildren(anchor)
-}
-function makeAnchor(id){
-  const anchor = document.createElement("a")
-  anchor.href = "./product.html?id=" + id
-  return anchor 
-}
-function appendChildren(anchor){
-  const items = document.querySelector("#items");
-  if (items != null) {
-    items.appendChild(anchor);
-  }
-}
-function makeImage(imageUrl,altTxt){
-  const image = document.createElement("img")
-  image.src = imageUrl
-  image.alt = altTxt
-  return image
-}
-function makeArticle(){
-  const article = document.createElement("article")
-  console.log(article)
-  return article
-}
-
-/* for (let canape of data) {
-       console.log(canape.name);
-      if (canape.name == "Kanap Hélicé") {
-        console.log("canapeHélicé");
-      }
-    }
-    console.log(data[0].imageUrl);*/
-    
+  });

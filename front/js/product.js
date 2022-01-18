@@ -36,7 +36,8 @@ fetch("http://localhost:3000/api/products/" + idProduct)
   });
 
 //ajoute un produit au panier
-const button = document.querySelector("#addToCart");
+
+/*let button = document.querySelector("#addToCart");
 
 button.addEventListener("click", (event) => {
   let colors = document.querySelector("#colors").value;
@@ -50,9 +51,12 @@ button.addEventListener("click", (event) => {
   if (colors == null || quantity == null || quantity == "0") {
     alert("Veuillez mettre la couleur et la quantité");
     event.preventDefault();
+    else 
   }
- 
 
   localStorage.setItem("id", JSON.stringify(optionProduct));
   window.location.href = "cart.html";
+  
 });
+*/
+

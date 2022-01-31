@@ -3,9 +3,7 @@
 fetch("http://localhost:3000/api/products") //requête fetch :récuperer des données dans le serveur de manière asynchrone
   .then((res) => res.json()) //promise : récupère les données en Json
   .then((data) => {
-    console.log(data);
-
-    let items = document.getElementById("items"); //on relie à "items" dans HTML
+    let items = document.getElementById("items");
     let htmlItems = "";
 
     //instruction "for...in" itère tous les "_id" de data et implémente "items" via le string interpolation
@@ -19,8 +17,4 @@ fetch("http://localhost:3000/api/products") //requête fetch :récuperer des don
   </a>`;
     }
     items.innerHTML = htmlItems;
-
-  
-
-
   });

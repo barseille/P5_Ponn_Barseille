@@ -1,62 +1,72 @@
-//lien d'un produit de la page d'accueil à la page produit, récupération de l'ID
-let idProduct = new URL(window.location.href).searchParams.get("id");
+// utilisation de searchparams pour récupérer l'id du bon produit pour chaque objet
+let params = new URL(document.location).searchParams;
+let id = params.get("id");
+const newUrl = "http://localhost:3000/api/products/" + id;
 
-fetch("http://localhost:3000/api/products/" + idProduct)
+const color = document.getElementById("colors");
+const quantity = document.getElementById("quantity");
+const imageURL = "";
+
+// appel de l'api
+fetch(newUrl)
   .then((response) => response.json())
+  .then((data) => {
+    console.log(data);
 
-  .then((product) => {
-    // ADD the image
-    let imgItemElement = document.getElementsByClassName("item__img");
-    let img = document.createElement("img");
-    img.src = product.imageUrl;
-    imgItemElement[0].appendChild(img); // ADD the name
+    resultApi = data; // const pour afficher les produits de l'Api
 
-    let titleElement = document.getElementById("title");
-    let h3 = document.createElement("h3");
-    h3.textContent = product.name;
-    titleElement.appendChild(h3); // ADD the price
+    const image = document.querySelector(".item__img");
+    const titre = document.querySelector("#title");
+    const prix = document.querySelector("#price");
+    const description = document.querySelector("#description");
+    const colors = document.querySelector("#colors");
+    let imageURL = "";
+    let imageAlt = ""; // mise en page de l'api avec le DOM
 
-    let priceSpanElement = document.getElementById("price");
-    let price = document.createTextNode(product.price);
-    priceSpanElement.appendChild(price); // ADD the description
+    image.innerHTML = `<img src="${resultApi.imageUrl}" alt="${resultApi.altTxt}">`;
+    imageURL = resultApi.imageUrl;
+    imageAlt = resultApi.altTxt;
+    titre.innerHTML = `${resultApi.name}`;
+    prix.innerText = `${resultApi.price}`;
+    description.innerText = `${resultApi.description}`; // boucle pour mettre en place les options de couleurs
 
-    let descriptionElement = document.getElementById("description");
-    let descri = document.createTextNode(product.description);
-    descriptionElement.appendChild(descri); //ADD the colors options
+    for (let i in resultApi.colors) {
+      colors.innerHTML += `<option value="${resultApi.colors[i]}">${resultApi.colors[i]}</option>`;
+    } // création du formulaire d'envoi du bouton
 
-    let selectElement = document.getElementById("colors");
-    let colors = product.colors;
-    for (let c of colors) {
-      let newOption = document.createElement("option");
-      newOption.value = c;
-      let colorText = document.createTextNode(c);
-      newOption.appendChild(colorText);
-      selectElement.appendChild(newOption);
+    const button = document.querySelector("#addToCart");
+    button.addEventListener("click", handleClick); //fonction pour bloquer quand le panier est vide
+
+    function handleClick() {
+      const color = document.getElementById("colors").value;
+      const quantity = document.getElementById("quantity").value;
+
+      if (isOrderIsValid(color, quantity)) return;
+      saveOrder(color, quantity);
+      redirectToCart();
+    } //fonction pour envoyer au panier
+    function redirectToCart() {
+      window.location.href = "cart.html";
+    } //fonction des paramètres couleurs et quantités
+
+    function isOrderIsValid(color, quantity) {
+      if (color == null || color === "" || quantity == null || quantity == 0) {
+        alert("Veuillez sélectionner une couleur ou une quantité");
+        return true;
+      }
+    } // création du tableau d'informations que je vais retourner au localStorage
+
+    function saveOrder(color, quantity) {
+      const arrayItem = {
+        id: id,
+        alt: imageAlt,
+        image: imageURL,
+        name: titre.innerHTML,
+        price: prix.innerHTML,
+        color: color,
+        quantity: quantity,
+      }; //ajoute dans le localstorage
+
+      localStorage.setItem(id, JSON.stringify(arrayItem));
     }
   });
-
-//ajoute un produit au panier
-
-/*let button = document.querySelector("#addToCart");
-
-button.addEventListener("click", (event) => {
-  let colors = document.querySelector("#colors").value;
-  let quantity = document.querySelector("#quantity").value;
-
-  let optionProduct = {
-    _id: idProduct,
-    colors: colors,
-    qty: quantity,
-  };
-  if (colors == null || quantity == null || quantity == "0") {
-    alert("Veuillez mettre la couleur et la quantité");
-    event.preventDefault();
-    else 
-  }
-
-  localStorage.setItem("id", JSON.stringify(optionProduct));
-  window.location.href = "cart.html";
-  
-});
-*/
-

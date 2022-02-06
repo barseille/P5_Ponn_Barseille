@@ -1,20 +1,28 @@
-//connexion à l'API
+// sélectionne #items dans HTML
+const container = document.querySelector("#items");
 
-fetch("http://localhost:3000/api/products") //requête fetch :récuperer des données dans le serveur de manière asynchrone
-  .then((res) => res.json()) //promise : récupère les données en Json
+// connexion à l'API
+fetch("http://localhost:3000/api/products")
+  .then((reponse) => {
+    return reponse.json();
+  })
+
   .then((data) => {
-    let items = document.getElementById("items");
-    let htmlItems = "";
-
-    //instruction "for...in" itère tous les "_id" de data et implémente "items" via le string interpolation
-    for (let i in data) {
-      htmlItems += `<a href="./product.html?id=${data[i]._id}">
+    const allKanap = data;
+    console.log(allKanap);
+    allKanap.forEach((element) => {
+      container.innerHTML += `<a href="./product.html?id=${element._id}">
     <article>
-      <img src = "${data[i].imageUrl} "alt = "${data[i].id}" >
-      <h3 class = "productName" > ${data[i].name} </h3>
-      <p class = "productDescription"> ${data[i].description} </p>
+      <img src = "${element.imageUrl} "alt = "${element.altTxt}" >
+      <h3 class = "productName" > ${element.name} </h3>
+      <p class = "productDescription"> ${element.description} </p>
     </article>
   </a>`;
-    }
-    items.innerHTML = htmlItems;
+    });
+  })
+  .catch(function (erreur) {
+    console.log("Fetch Erreur");
+    alert(
+      "veuillez nous excusez les produits ne sont pas disponible pour le moment."
+    );
   });

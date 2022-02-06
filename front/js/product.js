@@ -1,72 +1,102 @@
-// utilisation de searchparams pour récupérer l'id du bon produit pour chaque objet
+// utilisation de searParams pour récupérer l'id du bon produit pour chaque objet
 let params = new URL(document.location).searchParams;
 let id = params.get("id");
-const newUrl = "http://localhost:3000/api/products/" + id;
+const newURL = "http://localhost:3000/api/products/" + id;
 
-const color = document.getElementById("colors");
-const quantity = document.getElementById("quantity");
-const imageURL = "";
+//Affiche les produits de l'API
+function Kanapdata(kanap) {
+  const altTxt = kanap.altTxt;
+  const colors = kanap.colors;
+  const description = kanap.description;
+  const imageUrl = kanap.imageUrl;
+  const name = kanap.name;
+  const price = kanap.price;
 
-// appel de l'api
-fetch(newUrl)
+  itemPrice = price;
+  imgUrl = imageUrl;
+  altText = altTxt;
+  articleName = name;
+  creationImage(imageUrl, altTxt);
+  creationTitle(name);
+  creationPrice(price);
+  creationDescription(description);
+  creationColors(colors);
+}
+fetch(newURL)
   .then((response) => response.json())
-  .then((data) => {
-    console.log(data);
+  .then((res) => Kanapdata(res));
 
-    resultApi = data; // const pour afficher les produits de l'Api
+// on crée img car la balise img n'existe pas dans HTML
+// if parent != null veut dire si parent est différent de null
+function creationImage(imageUrl, altTxt) {
+  const image = document.createElement("img");
+  image.src = imageUrl;
+  image.alt = altTxt;
+  const parent = document.querySelector(".item__img");
+  if (parent != null) parent.appendChild(image);
+}
 
-    const image = document.querySelector(".item__img");
-    const titre = document.querySelector("#title");
-    const prix = document.querySelector("#price");
-    const description = document.querySelector("#description");
-    const colors = document.querySelector("#colors");
-    let imageURL = "";
-    let imageAlt = ""; // mise en page de l'api avec le DOM
+function creationTitle(name) {
+  const h1 = document.querySelector("#title");
+  if (h1 != null) h1.textContent = name;
+}
+function creationPrice(price) {
+  const span = document.querySelector("#price");
+  if (span != null) span.textContent = price;
+}
+function creationDescription(description) {
+  const p = document.querySelector("#description");
+  if (p != null) p.textContent = description;
+}
 
-    image.innerHTML = `<img src="${resultApi.imageUrl}" alt="${resultApi.altTxt}">`;
-    imageURL = resultApi.imageUrl;
-    imageAlt = resultApi.altTxt;
-    titre.innerHTML = `${resultApi.name}`;
-    prix.innerText = `${resultApi.price}`;
-    description.innerText = `${resultApi.description}`; // boucle pour mettre en place les options de couleurs
+// select = menu déroulant
+function creationColors(colors) {
+  const select = document.querySelector("#colors");
+  if (select != null) {
+    colors.forEach((color) => {
+      const option = document.createElement("option");
+      option.value = color;
+      option.textContent = color;
+      select.appendChild(option);
+    });
+  }
+}
+// Ecoute de l'évènement "add to cart"
+const button = document.querySelector("#addToCart");
+button.addEventListener("click", ajoutPanier);
 
-    for (let i in resultApi.colors) {
-      colors.innerHTML += `<option value="${resultApi.colors[i]}">${resultApi.colors[i]}</option>`;
-    } // création du formulaire d'envoi du bouton
+function ajoutPanier() {
+  const color = document.querySelector("#colors").value;
+  const quantity = document.querySelector("#quantity").value;
 
-    const button = document.querySelector("#addToCart");
-    button.addEventListener("click", handleClick); //fonction pour bloquer quand le panier est vide
+  if (commandeNonValide(color, quantity)) return;
+  commandeSauvegarder(color, quantity);
+  redirectionPanier();
+}
+// création du tableau d'informations que je vais retourner au localStorage
+function commandeSauvegarder(color, quantity) {
+  const key = `${id}-${color}`;
+  const data = {
+    id: id,
+    color: color,
+    quantity: Number(quantity),
+    price: itemPrice,
+    imageUrl: imgUrl,
+    altTxt: altText,
+    name: articleName,
+  };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+//Bloque les couleurs et quantités si 0 ou null
+// color === "" string vide
+function commandeNonValide(color, quantity) {
+  if (color == null || color === "" || quantity == null || quantity == 0) {
+    alert("Please select a color and quantity");
+    return true;
+  }
+}
 
-    function handleClick() {
-      const color = document.getElementById("colors").value;
-      const quantity = document.getElementById("quantity").value;
-
-      if (isOrderIsValid(color, quantity)) return;
-      saveOrder(color, quantity);
-      redirectToCart();
-    } //fonction pour envoyer au panier
-    function redirectToCart() {
-      window.location.href = "cart.html";
-    } //fonction des paramètres couleurs et quantités
-
-    function isOrderIsValid(color, quantity) {
-      if (color == null || color === "" || quantity == null || quantity == 0) {
-        alert("Veuillez sélectionner une couleur ou une quantité");
-        return true;
-      }
-    } // création du tableau d'informations que je vais retourner au localStorage
-
-    function saveOrder(color, quantity) {
-      const arrayItem = {
-        id: id,
-        alt: imageAlt,
-        image: imageURL,
-        name: titre.innerHTML,
-        price: prix.innerHTML,
-        color: color,
-        quantity: quantity,
-      }; //ajoute dans le localstorage
-
-      localStorage.setItem(id, JSON.stringify(arrayItem));
-    }
-  });
+//Renvoi à la page cart
+function redirectionPanier() {
+  window.location.href = "cart.html";
+}

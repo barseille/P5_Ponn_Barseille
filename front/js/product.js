@@ -1,102 +1,109 @@
-// utilisation de searParams pour récupérer l'id du bon produit pour chaque objet
-let params = new URL(document.location).searchParams;
-let id = params.get("id");
-const newURL = "http://localhost:3000/api/products/" + id;
+let url = new URL(window.location.href);
+let idProduct = url.searchParams.get("id");
+const UrlProduct = `http://localhost:3000/api/products/${idProduct}`;
 
-//Affiche les produits de l'API
-function Kanapdata(kanap) {
-  const altTxt = kanap.altTxt;
-  const colors = kanap.colors;
-  const description = kanap.description;
-  const imageUrl = kanap.imageUrl;
-  const name = kanap.name;
-  const price = kanap.price;
+const colors = document.getElementById("colors");
+const itemQty = document.getElementById("quantity");
 
-  itemPrice = price;
-  imgUrl = imageUrl;
-  altText = altTxt;
-  articleName = name;
-  creationImage(imageUrl, altTxt);
-  creationTitle(name);
-  creationPrice(price);
-  creationDescription(description);
-  creationColors(colors);
-}
-fetch(newURL)
+// appel de l'api
+//affiche des produits dans la page produit
+fetch(UrlProduct)
   .then((response) => response.json())
-  .then((res) => Kanapdata(res));
+  .then((data) => {
+    dataProduct = data;
 
-// on crée img car la balise img n'existe pas dans HTML
-// if parent != null veut dire si parent est différent de null
-function creationImage(imageUrl, altTxt) {
-  const image = document.createElement("img");
-  image.src = imageUrl;
-  image.alt = altTxt;
-  const parent = document.querySelector(".item__img");
-  if (parent != null) parent.appendChild(image);
-}
+    //appel des éléments depuis l'API
+    const image = document.querySelector(".item__img");
+    const titre = document.querySelector("#title");
+    const prix = document.querySelector("#price");
+    const description = document.querySelector("#description");
 
-function creationTitle(name) {
-  const h1 = document.querySelector("#title");
-  if (h1 != null) h1.textContent = name;
-}
-function creationPrice(price) {
-  const span = document.querySelector("#price");
-  if (span != null) span.textContent = price;
-}
-function creationDescription(description) {
-  const p = document.querySelector("#description");
-  if (p != null) p.textContent = description;
-}
+    //relié API et HTML
+    image.innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`;
+    imageUrl = data.imageUrl;
+    imageAlt = data.altTxt;
+    titre.innerHTML = `${data.name}`;
+    prix.innerHTML = `${data.price}`;
+    description.innerHTML = `${data.description}`;
+    const colors = data.colors;
+    optionColors(colors);
 
-// select = menu déroulant
-function creationColors(colors) {
-  const select = document.querySelector("#colors");
-  if (select != null) {
-    colors.forEach((color) => {
-      const option = document.createElement("option");
-      option.value = color;
-      option.textContent = color;
-      select.appendChild(option);
-    });
-  }
-}
-// Ecoute de l'évènement "add to cart"
-const button = document.querySelector("#addToCart");
-button.addEventListener("click", ajoutPanier);
+    // choix de couleurs
+    function optionColors(colors) {
+      const select = document.querySelector("#colors");
+      colors.forEach((couleur) => {
+        const option = document.createElement("option");
+        option.textContent = couleur;
+        select.appendChild(option);
+      });
+    }
+  })
+  .catch(function (err) {
+    console.log("Fetch Erreur");
+    alert(
+      "Veuillez nous excusez les produits ne sont pas disponible pour le moment."
+    );
+  });
 
-function ajoutPanier() {
-  const color = document.querySelector("#colors").value;
-  const quantity = document.querySelector("#quantity").value;
+const buttonPanier = document.querySelector("#addToCart");
+buttonPanier.addEventListener("click", (event) => {
+  // création tableau vide
+  let arrayItem = [];
 
-  if (commandeNonValide(color, quantity)) return;
-  commandeSauvegarder(color, quantity);
-  redirectionPanier();
-}
-// création du tableau d'informations que je vais retourner au localStorage
-function commandeSauvegarder(color, quantity) {
-  const key = `${id}-${color}`;
-  const data = {
-    id: id,
-    color: color,
-    quantity: Number(quantity),
-    price: itemPrice,
-    imageUrl: imgUrl,
-    altTxt: altText,
-    name: articleName,
+  // affecter produit de l'api
+  let colorProduct = document.querySelector("#colors").value;
+  let quantityProduct = document.querySelector("#quantity").value;
+
+  //dataProduct = data
+  const productId = dataProduct._id;
+  const nameProduct = dataProduct.name;
+  const imageUrlProduct = dataProduct.imageUrl;
+  const imageAltTxtProduct = dataProduct.altTxt;
+
+  //créer un objet pour mettre dans le local storage
+  let produitPanier = {
+    id: productId,
+    name: nameProduct,
+    color: colorProduct,
+    quantity: parseInt(quantityProduct, 10), //rajoute une qantité décimale
+    img: imageUrlProduct,
+    alt: imageAltTxtProduct,
   };
-  localStorage.setItem(key, JSON.stringify(data));
-}
-//Bloque les couleurs et quantités si 0 ou null
-// color === "" string vide
-function commandeNonValide(color, quantity) {
-  if (color == null || color === "" || quantity == null || quantity == 0) {
-    alert("Please select a color and quantity");
-    return true;
-  }
-}
+  console.log(produitPanier);
 
-//Renvoi à la page cart
-function redirectionPanier() {
-  window.location.href = "cart.html";
-}
+  //rajoute le produit dans le local storage s'il y a déjà un produit dans le panier
+  if (localStorage.getItem("panier")) {
+    arrayItem = JSON.parse(localStorage.getItem("panier"));
+
+    for (let i in arrayItem) {
+      if (
+        // va chercher dans l'objet ProduitPanier
+        //si meme produit et meme couleur
+        produitPanier.id == arrayItem[i].id &&
+        produitPanier.color == arrayItem[i].color
+      ) {
+        //ajouter le produit dans le tableau remplit
+        arrayItem[i].quantity = arrayItem[i].quantity + produitPanier.quantity;
+
+        if (arrayItem[i].quantity > 100) {
+          arrayItem[i].quantity = 100;
+          alert("Le nombre d'articles selectionnés est trop important !");
+        }
+
+        if (arrayItem[i].quantity <= 0) {
+          // ajouter option -1 ne doit pas se calculer
+          arrayItem[i].quantity <= 0;
+          alert("NON !");
+        }
+        localStorage.setItem("panier", JSON.stringify(arrayItem));
+        return;
+      }
+    }
+    arrayItem.push(produitPanier);
+    localStorage.setItem("panier", JSON.stringify(arrayItem));
+  } // si le panier est vide, ajoute le product directement
+  else {
+    arrayItem.push(produitPanier);
+    localStorage.setItem("panier", JSON.stringify(arrayItem));
+  }
+});

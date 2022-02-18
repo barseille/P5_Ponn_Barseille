@@ -1,13 +1,14 @@
-// on ramène le panier avec getItem et on transforme JSON en objet avec parse
+// on ramène le panier avec getItem et on le transforme le JSON en javascript avec parse
 let arrayItem = JSON.parse(localStorage.getItem("panier"));
 console.log("les canapés", arrayItem);
 const cartContainer = document.getElementById("cart__items");
 
 // si le panier est vide :
 if (arrayItem === null || arrayItem == 0) {
-  const empty = "Votre panier est vide";
+  const empty = `<p>Votre panier est vide</p>`;
   cartContainer.innerHTML = empty;
 }
+
 // si pas vide
 else {
   let affichage = "";
@@ -16,21 +17,16 @@ else {
     .then((response) => response.json())
     .then((response) => {
       // boucle forEach pour attribuer les différente values
-      arrayItem.forEach((productExtraction) => {
-        const id = productExtraction.id;
-        const color = productExtraction.color;
-        const alt = productExtraction.alt;
-        const name = productExtraction.name;
-        const quantity = productExtraction.quantity;
-        const img = productExtraction.img;
+      arrayItem.forEach((product) => {
+        const { id, color, alt, name, quantity, img } = product;
         const data = response;
-        //  cherche l'Id de data qui est égal à l'Id du localStorage
-        const search = data.find((e) => e._id === id);
-        // chercher le prix dans localStorage
-        const price = search.price;
-        console.log(price);
 
-        affichage = `
+        // trouver si element id de data est égal id de arrayitem
+        const search = data.find((el) => el._id === id);
+        const price = search.price;
+
+        //relie et affiche pour chaque produit séléctionné dans le dom
+        affichage += `
         <article class="cart__item" data-id="${id}" data-color="${color}">
         <div class="cart__item__img">
           <img src="${img}" alt="${alt}">
@@ -57,86 +53,96 @@ else {
         document.getElementById("cart__items").innerHTML = affichage;
 
         console.table(arrayItem);
-        // fonction pour afficher les prix dans le html et servira pour raffraichir les prix ensuite
 
+        // fonction pour afficher les prix dans le dom || servira pour raffraichir les prix ensuite
         function miseAJourPrix() {
           // je récupère les quantités
-          let quantiteArticle = document.getElementsByClassName("itemQuantity");
-          let produitTotal = quantiteArticle.length; // j'initialise ma variable pour le total des quantités
+          let quantiteDArticle =
+            document.getElementsByClassName("itemQuantity");
+          let produitTotal = quantiteDArticle.length;
+
+          // j'initialise ma variable pour le total des quantités
+          let totalQtt = 0;
 
           // je boucle pour savoir le total
-          // valueAsNumber va changer la valeur de input de type chaîne en number
-          let totalQtt = 0;
-          for (let i = 0; i < produitTotal; i++) {
-            totalQtt += quantiteArticle[i].valueAsNumber;
+          for (let q = 0; q < produitTotal; q++) {
+            totalQtt += quantiteDArticle[q].valueAsNumber; // valueAsNumber : changer type string en number
           }
 
-          // je transmet le résultat à mon html
-          let affichageQuantite = document.getElementById("totalQuantity");
-          affichageQuantite.innerHTML = totalQtt;
-          console.log(totalQtt); // j'initialise ma variable pour le total des prix
+          // je transmet le résultat sur le dom
+          let afficherQuantite = document.getElementById("totalQuantity");
+          afficherQuantite.innerHTML = totalQtt;
+          console.log(totalQtt);
 
+          // j'initialise le compteur de ma variable à zéro pour le total des prix
           // je boucle pour avoir le prix des articles en fonction des quantités
+          // boucle pour avoir le total des prix
           let totalPrice = 0;
-          for (let i = 0; i < produitTotal; i++) {
-            totalPrice += quantiteArticle[i].valueAsNumber * price;
+          for (let q = 0; q < produitTotal; q++) {
+            totalPrice += quantiteDArticle[q].valueAsNumber * price;
           }
-          // je transmet le résultat à mon html
-          let affichagePrix = document.getElementById("totalPrice");
-          let arrondir = Math.round(totalPrice);
-          affichagePrix.innerHTML = arrondir;
 
-          // pour finir je set mon cart (sera surtout utile quand je delete un canapé)
+          // je transmet le résultat à mon html
+          let priceDisplay = document.getElementById("totalPrice");
+          let fix = Math.round(totalPrice); // arrondi à l'entier le plus proche.
+          priceDisplay.innerHTML = fix; // pour finir jenvoie mon panier vers le localStorage
+
           localStorage.setItem("panier", JSON.stringify(arrayItem));
         }
-        miseAJourPrix(); // fonction pour supprimer un produit choisi
+        miseAJourPrix();
 
+        // fonction pour supprimer un produit choisi
         function deleteProduct() {
           let deleteItem = document.querySelectorAll(".deleteItem");
 
-          for (let i = 0; i < deleteItem.length; i++) {
-            deleteItem[i].addEventListener("click", (event) => {
-              event.preventDefault();
+          for (let s = 0; s < deleteItem.length; s++) {
+            deleteItem[s].addEventListener("click", (event) => {
+              event.preventDefault(); // ne va pas à la page suivante si tu ne remplis pas ces conditions
 
-              let idDelete = arrayItem[i].id;
-              let colorDelete = arrayItem[i].color; // méthode filter pour trouver le bonne élément de la boucle
+              let idDelete = arrayItem[s].id;
+              let colorDelete = arrayItem[s].color;
 
+              // méthode filter pour trouver le bon élément de la boucle
               arrayItem = arrayItem.filter(
                 (el) => el.id !== idDelete || el.color !== colorDelete
-              ); // removeChild pour enlever dynamiquement le html de l'article
-
-              let target = document.getElementById("cart__items");
-              target.childNodes[i];
-              target.removeChild(target.children[i]); // update des prix et quantités de façon dynamique
+              ); //
+              arrayItem.splice(s, 0); //modifie dans le tableau
+              localStorage.setItem("panier", JSON.stringify(arrayItem));
+              location.reload(); // mise à jour des prix et quantités de façon dynamique
 
               miseAJourPrix();
             });
           }
         }
-        deleteProduct(); // fonction pour que l'utilisateur puisse changer la quantité d'un canapé
+        deleteProduct();
 
-        function quantityChange() {
-          let quantiteArticle = document.querySelectorAll(".itemQuantity"); // je boucle la longueur pour chaque quantité
+        // fonction pour que l'utilisateur puisse changer la quantité d'un canapé
+        function qttChange() {
+          let quantiteDArticle = document.querySelectorAll(".itemQuantity");
 
-          for (let i = 0; i < quantiteArticle.length; i++) {
-            quantiteArticle[i].addEventListener("change", (event) => {
-              event.preventDefault(); //je sélectionner l'élément à modifier
+          // je boucle la longueur pour chaque quantité
+          for (let k = 0; k < quantiteDArticle.length; k++) {
+            quantiteDArticle[k].addEventListener("change", (e) => {
+              e.preventDefault();
 
-              const qttSelect = arrayItem[i].quantity;
-              const qttValue = quantiteArticle[i].valueAsNumber; // je cherche l'élement que je veux avec la méthode find
+              //je sélectionner l'élément à modifier
+              const qttSelect = arrayItem[k].quantity;
+              const qttValue = quantiteDArticle[k].valueAsNumber;
 
+              // je cherche l'élement que je veux avec la méthode find
               const qttSearch = arrayItem.find(
-                (element) => element.qttValue !== qttSelect
+                (el) => el.qttValue !== qttSelect
               );
 
               qttSearch.quantity = qttValue;
-              arrayItem[i].quantity = qttSearch.quantity; // je remplace le panier avec les bonnes valeurs
+              arrayItem[k].quantity = qttSearch.quantity;
 
+              // je remplace le panier avec les bonnes valeurs
               miseAJourPrix();
             });
           }
         }
-        quantityChange();
+        qttChange();
       }); // fin du fetch
     }); // fin du for each
 } // fin de else
@@ -149,15 +155,15 @@ let form = document.querySelector(".cart__order__form");
 let emailCheck = new RegExp(
   "^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9._]+[.]{1}[a-z]{2,10}$"
 );
-let nameCheck = new RegExp("^[a-zA-Zéè-]+$");
+let nameCheck = new RegExp("^[a-zA-Z ,.'-àâäéèêëïîôöùûüç]+$");
 let cityCheck = new RegExp("^[a-zA-Z]+(?:[s-][a-zA-Z]+)*$");
 let addressCheck = new RegExp(
-  "^[0-9]{1,3}([,. ]{1,9}[-a-zA-Zàâäéèêëïîôöùûüç])"
+  "^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+"
 );
 
 // Ecoute de la modification du nom
 form.firstName.addEventListener("change", function () {
-  validFirstName(this);
+  prenomValide(this);
 });
 
 // Ecoute de la modification du prénom
@@ -165,121 +171,125 @@ form.lastName.addEventListener("change", function () {
   validLastName(this);
 });
 
-// Ecoute de la modification du prénom
+// Ecoute de la modification de l'adresse
 form.address.addEventListener("change", function () {
   validAddress(this);
 });
 
-// Ecoute de la modification du prénom
+// Ecoute de la modification de la ville
 form.city.addEventListener("change", function () {
   validCity(this);
 });
 
-// Ecoute de la modification du prénom
+// Ecoute de la modification du mail
 form.email.addEventListener("change", function () {
   validEmail(this);
 });
 
 //validation du prénom
-const validFirstName = function (saisirPrenom) {
-  let firstNameErrorMsg = saisirPrenom.nextElementSibling;
+const prenomValide = function (saisirPrenom) {
+  let prenomErreurMsg = saisirPrenom.nextElementSibling; //donne la balise suivante
 
   if (nameCheck.test(saisirPrenom.value)) {
-    firstNameErrorMsg.innerHTML = "";
+    prenomErreurMsg.innerHTML = "";
     return true;
   } else {
-    firstNameErrorMsg.innerHTML = "Le champ n'est pas valide !";
+    prenomErreurMsg.innerHTML = "Le champ n'est pas valide !";
     return false;
   }
 };
 
 //validation du nom
-const validLastName = function (inputLastName) {
-  let lastNameErrorMsg = inputLastName.nextElementSibling;
+const validLastName = function (saisirNom) {
+  let nomErreurMsg = saisirNom.nextElementSibling;
 
-  if (nameCheck.test(inputLastName.value)) {
-    lastNameErrorMsg.innerHTML = "";
+  if (nameCheck.test(saisirNom.value)) {
+    nomErreurMsg.innerHTML = "";
     return true;
   } else {
-    lastNameErrorMsg.innerHTML = "Le champ n'est pas valide !";
+    nomErreurMsg.innerHTML = "Le champ n'est pas valide !";
     return false;
   }
 };
 
 //validation de l'adresse
-const validAddress = function (inputAddress) {
-  let addressErrorMsg = inputAddress.nextElementSibling;
+const validAddress = function (saisirAdresse) {
+  let adresseErreurMsg = saisirAdresse.nextElementSibling;
 
-  if (addressCheck.test(inputAddress.value)) {
-    addressErrorMsg.innerHTML = "";
+  if (addressCheck.test(saisirAdresse.value)) {
+    adresseErreurMsg.innerHTML = "";
     return true;
   } else {
-    addressErrorMsg.innerHTML = "Le champ n'est pas valide !";
+    adresseErreurMsg.innerHTML = "Le champ n'est pas valide !";
     return false;
   }
 };
 
 //validation de la ville
-const validCity = function (inputCity) {
-  let cityErrorMsg = inputCity.nextElementSibling;
+const validCity = function (saisirVille) {
+  let villeErreurMsg = saisirVille.nextElementSibling;
 
-  if (cityCheck.test(inputCity.value)) {
-    cityErrorMsg.innerHTML = "";
+  if (cityCheck.test(saisirVille.value)) {
+    villeErreurMsg.innerHTML = "";
     return true;
   } else {
-    cityErrorMsg.innerHTML = "Le champ n'est pas valide !";
+    villeErreurMsg.innerHTML = "Le champ n'est pas valide !";
     return false;
   }
 };
 
 //validation de l'email
-const validEmail = function (inputEmail) {
-  let emailErrorMsg = inputEmail.nextElementSibling;
+const validEmail = function (saisirEmail) {
+  let emailErreurMsg = saisirEmail.nextElementSibling;
 
-  if (emailCheck.test(inputEmail.value)) {
-    emailErrorMsg.innerHTML = "";
+  if (emailCheck.test(saisirEmail.value)) {
+    emailErreurMsg.innerHTML = "";
     return true;
   } else {
-    emailErrorMsg.innerHTML = "Le champ n'est pas valide !";
+    emailErreurMsg.innerHTML = "Le champ n'est pas valide !";
     return false;
   }
 };
 
+// bouton commander
 function checkFinal() {
-  if (
-    validLastName === true &&
-    validFirstName === true &&
-    validAddress === true &&
-    validCity === true &&
-    validEmail === true
-  ) {
-    const btn_commander = document.getElementById("order");
+  const btn_commander = document.getElementById("order");
 
-    btn_commander.addEventListener("click", (e) => {
-      e.preventDefault(); // le tableau pour les id
+  btn_commander.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const saisirPrenom = document.getElementById("firstName");
+    const saisirNom = document.getElementById("lastName");
+    const saisirAdresse = document.getElementById("address");
+    const saisirVille = document.getElementById("city");
+    const saisirEmail = document.getElementById("email");
+
+    if (
+      validLastName(saisirNom) &&
+      prenomValide(saisirPrenom) &&
+      validAddress(saisirAdresse) &&
+      validCity(saisirVille) &&
+      validEmail(saisirEmail)
+    ) {
+      // le tableau pour les id
       let itemId = [];
-      for (let z = 0; z < cart.length; z++) {
-        itemId.push(cart[z].id);
+      for (let z = 0; z < arrayItem.length; z++) {
+        itemId.push(arrayItem[z].id);
       }
       console.log(itemId);
 
-      let inputName = document.getElementById("firstName");
-      let inputLastName = document.getElementById("lastName");
-      let inputAdress = document.getElementById("address");
-      let inputCity = document.getElementById("city");
-      let inputMail = document.getElementById("email");
-
       const order = {
         contact: {
-          firstName: inputName.value,
-          lastName: inputLastName.value,
-          address: inputAdress.value,
-          city: inputCity.value,
-          email: inputMail.value,
+          firstName: saisirPrenom.value,
+          lastName: saisirNom.value,
+          address: saisirAdresse.value,
+          city: saisirVille.value,
+          email: saisirEmail.value,
         },
         products: itemId,
       };
 
+      //méthode post = envoi au serveur
       const options = {
         method: "POST",
         body: JSON.stringify(order),
@@ -292,19 +302,13 @@ function checkFinal() {
       fetch("http://localhost:3000/api/products/order", options)
         .then((response) => response.json())
         .then((data) => {
-          /*console.log(data)
-          localStorage.clear()
-          localStorage.setItem('orderId', data.orderId)
-*/
-          let orderId = data.orderId;
-          window.location.href = `./confirmation.html?id=${orderId}`;
-          console.log(orderId);
-        })
-        .catch((error) => {
-          console.log(error);
-        }); /*document.location.href = 'confirmation.html?orderId'*/
-    });
-  } // fin du addEvent orderBtn
-}
+          console.log(data);
+          localStorage.clear();
+          localStorage.setItem("orderId", data.orderId);
 
+          document.location.href = `confirmation.html?orderId=${data.orderId}`;
+        });
+    } // fin du if
+  }); // fin du addEvent orderBtn
+}
 checkFinal();

@@ -2,15 +2,15 @@ const url = new URL(window.location.href);
 const idProduct = url.searchParams.get("id");
 const UrlProduct = `http://localhost:3000/api/products/${idProduct}`;
 
-const colors = document.getElementById("colors");
-const itemQty = document.getElementById("quantity");
-let myProduct = {};
-
 //appel des éléments depuis le DOM
+const colors = document.querySelector("#colors");
+const itemQty = document.querySelector("#quantity");
 const image = document.querySelector(".item__img");
 const titre = document.querySelector("#title");
 const prix = document.querySelector("#price");
 const description = document.querySelector("#description");
+
+let myProduct = {};
 
 function optionColors(colors) {
   const select = document.querySelector("#colors");
@@ -44,7 +44,7 @@ fetch(UrlProduct)
   .catch(function () {
     console.log("Fetch Erreur");
     alert(
-      "Veuillez nous excuser les produits ne sont pas disponible pour le moment."
+      "Veuillez nous excuser le produit n'est pas disponible pour le moment."
     );
   });
 
@@ -73,11 +73,11 @@ buttonPanier.addEventListener("click", () => {
   };
 
   if (produitPanier.quantity <= 0 || produitPanier.quantity > 100) {
-    alert("Veuillez indiquer un nombre d'article entre 1 et 100");
+    alert("Indiquer un nombre d'article entre 1 et 100");
     return;
   }
   if (produitPanier.color == "") {
-    alert("Veuillez choisir une couleur");
+    alert("Sélectionnez une couleur");
     return;
   }
 

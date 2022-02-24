@@ -12,7 +12,7 @@ const recuperationCanapesAPI = async function () {
     .then((response) => response.json())
     .then((response) => {
       canapesLocalStorage.forEach((canape, index) => {
-        // On créé une variable => canapeDansAPI
+        // On créé une variable => infoFromLocalStorage (canapeDansAPI)
         // cette variable nous permet de récupérer les informations d'un canapé dans l'API
         // dont l'id correspond à l'id d'un canapé présent dans le localStorage
         const infoFromLocalStorage = {};
@@ -20,6 +20,7 @@ const recuperationCanapesAPI = async function () {
         infoFromLocalStorage.quantity = canape.quantity;
 
         informationsCanapesUtilisateur[index] = Object.assign(
+          // cloner objet
           infoFromLocalStorage,
           response.find((el) => el._id === canape.id)
         );
@@ -30,6 +31,7 @@ const recuperationCanapesAPI = async function () {
       // Une fois que la boucle est terminée on renvoie le tableau "informationsCanapesUtilisateur"
       // et cela afin de pouvoir faire s'en servir pour faire des traitements dessus dans le reste de notre script
       return informationsCanapesUtilisateur;
+      // return à l'intérieur d'un "then" = promesse résolue
     })
     .catch(function () {
       cartContainer.innerHTML = `<p>Une erreur est survenue. Merci de contacter le support client.</p>`;
@@ -70,6 +72,7 @@ const affichageDesCanapes = async function () {
   cartContainer.innerHTML = affichage;
 
   // On fait appel aux autres fonctions
+  // canapesUtilisateur sert de paramètre pour faire l'addition et l'affectation
   miseAJourPrix(canapesUtilisateur);
   miseAJourQuantite(canapesUtilisateur);
   suppressionCanape();
@@ -140,6 +143,7 @@ const suppressionCanape = function () {
         "panier",
         JSON.stringify(nouvelleValeurLocalStorage)
       );
+      alert("L'article a bien été supprimé");
 
       location.reload();
     });

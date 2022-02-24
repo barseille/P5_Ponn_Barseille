@@ -1,4 +1,4 @@
-const url = new URL(window.location.href);
+const url = new URL(window.location.href); // renvoie de l'Url de la page actuelle
 const idProduct = url.searchParams.get("id");
 const UrlProduct = `http://localhost:3000/api/products/${idProduct}`;
 
@@ -12,6 +12,7 @@ const description = document.querySelector("#description");
 
 let myProduct = {};
 
+// fonction pour afficher les couleurs
 function optionColors(colors) {
   const select = document.querySelector("#colors");
   colors.forEach((couleur) => {
@@ -26,7 +27,7 @@ function optionColors(colors) {
 fetch(UrlProduct)
   .then((response) => response.json())
   .then((data) => {
-    //relié Dom à l'api
+    //relié Dom à l'api pour l'affichage des produits
     image.innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`;
     titre.innerHTML = `${data.name}`;
     prix.innerHTML = `${data.price}`;
@@ -36,10 +37,8 @@ fetch(UrlProduct)
 
     // créer l'objet myProduct avec la clé API
     myProduct.id = data._id;
-    myProduct.name = data.name;
-    myProduct.price = data.price;
-    myProduct.imageUrl = data.imageUrl;
-    myProduct.altTxt = data.altTxt;
+    myProduct.colors = data.colors;
+    myProduct.quantity = data.quantity;
   })
   .catch(function () {
     console.log("Fetch Erreur");

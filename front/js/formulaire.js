@@ -4,12 +4,11 @@ let form = document.querySelector(".cart__order__form");
 let emailCheck = new RegExp(
   "^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9._]+[.]{1}[a-z]{2,10}$"
 );
-let nameCheck = new RegExp("^[a-zA-Z ,.'-àâäéèêëïîôöùûüç]+$");
+let nameCheck = new RegExp("^[a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$");
 let cityCheck = new RegExp("^[a-zA-Z]+(?:[s-][a-zA-Z]+)*$");
 let addressCheck = new RegExp(
   "^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+"
 );
-
 // Ecoute de la modification du nom
 form.firstName.addEventListener("change", function () {
   prenomValide(this);
@@ -151,13 +150,10 @@ function checkFinal() {
       fetch("http://localhost:3000/api/products/order", options)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
-          localStorage.clear();
-          localStorage.setItem("orderId", data.orderId);
-
           document.location.href = `confirmation.html?orderId=${data.orderId}`;
         });
     } // fin du if
   }); // fin du addEvent orderBtn
 }
+
 checkFinal();

@@ -102,19 +102,22 @@ const miseAJourQuantite = function (canapesUtilisateur) {
 
       const canapesLocalStorage = JSON.parse(localStorage.getItem("panier"));
 
-      const parent = input.closest("article");
+      // quand on modifira les quantités, on fera tjs apel au "parent"
+      const parent = input.closest("article"); // recherche son parent qui est lui même
       const canapeId = parent.getAttribute("data-id");
       const canapeColor = parent.getAttribute("data-color");
       const quantite = input.valueAsNumber;
 
       // On va mettre à jour la quantité dans le tableau du localStorage
+      // id et color du data = élément de l'article
       const indexTableauLS = canapesLocalStorage.findIndex(
         (el) => el.id === canapeId && el.color === canapeColor
       );
+      // quantité du panier = nombre d'article dans panier
       canapesLocalStorage[indexTableauLS].quantity = quantite;
       localStorage.setItem("panier", JSON.stringify(canapesLocalStorage));
 
-      // On va mettre à jour la quantité dans l'objet canapesUtilisateur
+      // On va mettre à jour la quantité dans page panier (l'objet canapesUtilisateur)
       const indexTableauCanapes = canapesUtilisateur.findIndex(
         (el) => el._id === canapeId && el.color === canapeColor
       );
@@ -145,7 +148,7 @@ const suppressionCanape = function () {
       );
       alert("L'article a bien été supprimé");
 
-      location.reload();
+      location.reload(); // recharge la page actuelle
     });
   });
 };

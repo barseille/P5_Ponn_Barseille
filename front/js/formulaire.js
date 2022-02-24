@@ -9,12 +9,13 @@ let cityCheck = new RegExp("^[a-zA-Z]+(?:[s-][a-zA-Z]+)*$");
 let addressCheck = new RegExp(
   "^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+"
 );
-// Ecoute de la modification du nom
+
+// Ecoute de la modification du prenom
 form.firstName.addEventListener("change", function () {
   prenomValide(this);
 });
 
-// Ecoute de la modification du prénom
+// Ecoute de la modification du nom
 form.lastName.addEventListener("change", function () {
   validLastName(this);
 });
@@ -36,7 +37,7 @@ form.email.addEventListener("change", function () {
 
 //validation du prénom
 const prenomValide = function (saisirPrenom) {
-  let prenomErreurMsg = saisirPrenom.nextElementSibling; //donne la balise suivante
+  let prenomErreurMsg = saisirPrenom.nextElementSibling; // montre l'élément suivante
 
   if (nameCheck.test(saisirPrenom.value)) {
     prenomErreurMsg.innerHTML = "";

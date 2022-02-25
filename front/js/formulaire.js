@@ -100,7 +100,10 @@ const validEmail = function (saisirEmail) {
   }
 };
 
-// bouton commander
+/*
+ * function checkFinal
+ * Cette fonction vérifie le formulaire avant envoi
+ */
 function checkFinal() {
   const btn_commander = document.getElementById("order");
 

@@ -13,7 +13,7 @@ const recuperationCanapesAPI = async function () {
     .then((response) => response.json())
     .then((response) => {
       canapesLocalStorage.forEach((canape, index) => {
-        // On créé une variable => infoFromLocalStorage (canapeDansAPI)
+        // On créé une variable => infoFromLocalStorage 
         // cette variable nous permet de récupérer les informations d'un canapé dans l'API
         // dont l'id correspond à l'id d'un canapé présent dans le localStorage
         const infoFromLocalStorage = {};

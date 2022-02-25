@@ -3,6 +3,7 @@ console.table(arrayItem);
 
 const cartContainer = document.querySelector("#cart__items");
 
+//  récupération des canapés depuis l'API
 const recuperationCanapesAPI = async function () {
   const canapesLocalStorage = JSON.parse(localStorage.getItem("panier"));
 
@@ -26,8 +27,6 @@ const recuperationCanapesAPI = async function () {
         );
       });
 
-      console.log(informationsCanapesUtilisateur);
-
       // Une fois que la boucle est terminée on renvoie le tableau "informationsCanapesUtilisateur"
       // et cela afin de pouvoir faire s'en servir pour faire des traitements dessus dans le reste de notre script
       return informationsCanapesUtilisateur;
@@ -37,7 +36,7 @@ const recuperationCanapesAPI = async function () {
       cartContainer.innerHTML = `<p>Une erreur est survenue. Merci de contacter le support client.</p>`;
     });
 };
-
+// affichages des canapés
 const affichageDesCanapes = async function () {
   const canapesUtilisateur = await recuperationCanapesAPI();
 

@@ -64,7 +64,7 @@ buttonPanier.addEventListener("click", () => {
   let produitPanier = {
     id: myProduct.id,
     name: myProduct.name,
-    price: myProduct.price,
+  
     color: colorProduct,
     quantity: parseInt(quantityProduct, 10), //rajoute une quantité décimale
     img: myProduct.imageUrl,

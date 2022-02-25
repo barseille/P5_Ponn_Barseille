@@ -76,7 +76,7 @@ const affichageDesCanapes = async function () {
   miseAJourQuantite(canapesUtilisateur);
   suppressionCanape();
 };
-
+// fonction pour mise à jour des prix
 const miseAJourPrix = function (canapesUtilisateur) {
   let sommeDesQuantites = 0;
   let sommeDesPrix = 0;
@@ -92,7 +92,7 @@ const miseAJourPrix = function (canapesUtilisateur) {
   let priceDisplay = document.querySelector("#totalPrice");
   priceDisplay.innerHTML = Math.round(sommeDesPrix);
 };
-
+// function pour mettre les quantités à jour 
 const miseAJourQuantite = function (canapesUtilisateur) {
   const inputQuantite = document.querySelectorAll(".itemQuantity");
   inputQuantite.forEach((input) => {
@@ -126,7 +126,7 @@ const miseAJourQuantite = function (canapesUtilisateur) {
     });
   });
 };
-
+// fonction pour supprimer les produits
 const suppressionCanape = function () {
   const boutonsDeSuppression = document.querySelectorAll(".deleteItem");
   boutonsDeSuppression.forEach((bouton) => {
